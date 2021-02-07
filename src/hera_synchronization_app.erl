@@ -9,8 +9,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 start(_StartType, _StartArgs) ->
-    %hera_sup:start_link().
-    undefined.
+    hera_synchronization_sup:start_link().
 
 
 stop(_State) ->
