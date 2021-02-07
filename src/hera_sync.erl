@@ -38,14 +38,12 @@ loop(#state{p_ref=PRef, queue=Q}) ->
     after 0 ->
         case queue:is_empty(Q) of
         true ->
-            io:format("empty~n"),
             {stop, normal};
         false ->
             {{value, {Pid, Ref}}, Q2} = queue:out(Q),
             Pid ! {authorized, self()},
             receive
                 {ok, Pid} ->
-                    io:format("done~n"),
                     Q3 = queue:in({Pid, Ref}, Q2),
                     loop(#state{p_ref=PRef, queue=Q3});
                 {'DOWN', Ref, _, _, _} ->
@@ -61,16 +59,3 @@ sub(MeasurePid, Queue) ->
     Ref = monitor(process, MeasurePid),
     Item = {MeasurePid, Ref},
     queue:in(Item, Queue).
-
-
-test() ->
-    {ok, Pid} = hera_sub:subscribe(test),
-    Ref = monitor(process, Pid),
-    receive
-        {authorized, Pid} ->
-            io:format("Measuring....~n"),
-            timer:sleep(5000),
-            Pid ! {ok, self()};
-        {'DOWN', Ref, _, _, _} ->
-            io:format("Sync down~n")
-    end.
