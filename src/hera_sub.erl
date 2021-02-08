@@ -49,7 +49,7 @@ handle_call({subscribe, Name}, {SubPid, _}, State=#state{names=N}) when
 handle_call({subscribe, Name}, {SubPid, _}, State) ->
     #state{names=N, refs=R} = State,
     {ok, {Pid, Ref}} = hera_sync:start_monitor(SubPid),
-    NewState = #state{names=N#{Name=>Pid}, refs=R#{Ref=>Name}},
+    NewState = State#state{names=N#{Name=>Pid}, refs=R#{Ref=>Name}},
     {reply, {ok, Pid}, NewState};
 
 handle_call(_Request, _From, State) ->
@@ -60,10 +60,10 @@ handle_cast(_Request, State) ->
     {noreply, State}.
 
 
-handle_info({'DOWN', Ref, _, _, _}, #state{names=N, refs=R}) ->
+handle_info({'DOWN', Ref, _, _, _}, State=#state{names=N, refs=R}) ->
     {Name, R2} = maps:take(Ref, R),
-    State = #state{names=maps:remove(Name, N), refs=R2},
-    {noreply, State};
+    NewState = State#state{names=maps:remove(Name, N), refs=R2},
+    {noreply, NewState};
 
 handle_info(_Info, State) ->
     {noreply, State}.

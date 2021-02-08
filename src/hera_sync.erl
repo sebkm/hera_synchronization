@@ -39,11 +39,11 @@ init(ParentPid, MeasurePid) ->
     loop(#state{p_ref=Ref, queue=Q}).
 
 
-loop(#state{p_ref=PRef, queue=Q}) ->
+loop(State=#state{p_ref=PRef, queue=Q}) ->
     receive
         {subscribe, NewMeasure} ->
             Q2 = sub(NewMeasure, Q),
-            loop(#state{p_ref=PRef, queue=Q2})
+            loop(State#state{queue=Q2})
     after 0 ->
         case queue:is_empty(Q) of
         true ->
@@ -54,9 +54,9 @@ loop(#state{p_ref=PRef, queue=Q}) ->
             receive
                 {ok, Pid} ->
                     Q3 = queue:in({Pid, Ref}, Q2),
-                    loop(#state{p_ref=PRef, queue=Q3});
+                    loop(State#state{queue=Q3});
                 {'DOWN', Ref, _, _, _} ->
-                   loop(#state{p_ref=PRef, queue=Q2});
+                   loop(State#state{queue=Q2});
                 {'DOWN', PRef, _, _, _} ->
                     {stop, normal}
             end
