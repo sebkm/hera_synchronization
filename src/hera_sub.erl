@@ -18,10 +18,20 @@ start_link() ->
     gen_server:start_link({global, ?MODULE}, ?MODULE, [], []).
 
 
-subscribe(Name) ->
-    % maybe wait is undef
-    gen_server:call({global, ?MODULE}, {subscribe, Name}).
+%% subscribe the caller to the hera_sync in charge of
+%% measurments identified by Name
+-spec subscribe(Name) -> {ok, pid()} when
+    Name :: atom().
 
+subscribe(Name) ->
+    case global:whereis_name(?MODULE) of
+        Pid when is_pid(Pid) ->
+            gen_server:call(Pid, {subscribe, Name});
+        undefined ->
+            timer:sleep(1000),
+            subscribe(Name)
+    end.
+    
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Callbacks
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -40,10 +50,13 @@ handle_call({subscribe, Name}, {SubPid, _}, State) ->
     #state{names=N, refs=R} = State,
     {ok, {Pid, Ref}} = hera_sync:start_monitor(SubPid),
     NewState = #state{names=N#{Name=>Pid}, refs=R#{Ref=>Name}},
-    {reply, {ok, Pid}, NewState}.
+    {reply, {ok, Pid}, NewState};
+
+handle_call(_Request, _From, State) ->
+    {reply, ok, State}.
 
 
-handle_cast(_Msg, State) ->
+handle_cast(_Request, State) ->
     {noreply, State}.
 
 

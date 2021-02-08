@@ -7,18 +7,27 @@
     queue :: queue:queue({pid(), reference()})
 }).
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% API
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% starts and monitor a new hera_sync with MeasurePid as first subscriber
+-spec start_monitor(MeasurePid) -> {ok, {pid(), reference()}} when
+    MeasurePid :: pid().
 
 start_monitor(MeasurePid) ->
     ParentPid = self(),
     {ok, spawn_monitor(fun() -> init(ParentPid, MeasurePid) end)}.
 
 
+%% cast a subscribe message to the hera_sync identified by SyncPid
+-spec subscribe(SyncPid, MeasurePid) -> ok when
+    SyncPid :: pid(),
+    MeasurePid :: pid().
+
 subscribe(SyncPid, MeasurePid) ->
-    SyncPid ! {subscribe, MeasurePid}.
+    SyncPid ! {subscribe, MeasurePid},
+    ok.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Internal functions
