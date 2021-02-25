@@ -15,7 +15,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 start_link() ->
-    gen_server:start_link({global, ?MODULE}, ?MODULE, [], []).
+    {ok, Pid} = gen_server:start_link(?MODULE, [], []),
+    global:re_register_name(?MODULE, Pid),
+    {ok, Pid}.
 
 
 %% subscribe the caller to the hera_sync in charge of

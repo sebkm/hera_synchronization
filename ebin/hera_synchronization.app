@@ -1,0 +1,11 @@
+{application,hera_synchronization,
+             [{description,"An extension to hera for synchronized measurements."},
+              {vsn,"1.0.0"},
+              {registered,[hera_sub]},
+              {mod,{hera_synchronization_app,[]}},
+              {applications,[kernel,stdlib]},
+              {env,[]},
+              {modules,[hera_sub,hera_sync,hera_synchronization_app,
+                        hera_synchronization_sup]},
+              {licenses,["Apache 2.0"]},
+              {links,[]}]}.
